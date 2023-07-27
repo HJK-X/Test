@@ -1,0 +1,8 @@
+C:\Users\justi\Desktop\Projects\Test\rust_test\target\debug\deps\clap_lex-b9e689e9f0759102.rmeta: C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\clap_lex-0.5.0\src\lib.rs C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\clap_lex-0.5.0\src\ext.rs
+
+C:\Users\justi\Desktop\Projects\Test\rust_test\target\debug\deps\libclap_lex-b9e689e9f0759102.rlib: C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\clap_lex-0.5.0\src\lib.rs C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\clap_lex-0.5.0\src\ext.rs
+
+C:\Users\justi\Desktop\Projects\Test\rust_test\target\debug\deps\clap_lex-b9e689e9f0759102.d: C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\clap_lex-0.5.0\src\lib.rs C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\clap_lex-0.5.0\src\ext.rs
+
+C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\clap_lex-0.5.0\src\lib.rs:
+C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\clap_lex-0.5.0\src\ext.rs:

@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand};
+use sha3::{Sha3_512, Digest};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]

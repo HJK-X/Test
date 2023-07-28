@@ -27,9 +27,7 @@ enum Commands {
     Delete(DefaultArgs),
 
     /// View password history
-    History(DefaultArgs),
-
-    
+    History(DefaultArgs),    
 }
 
 #[derive(Args)]

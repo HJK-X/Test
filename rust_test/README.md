@@ -1,0 +1,1 @@
+A full rust implementation of a password manager with various capabilities

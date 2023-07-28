@@ -1,17 +1,4 @@
 use clap::{Parser, Subcommand};
-use sha3::{Sha3_512, Digest};
-
-#[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
-struct Args {
-    /// Name of person
-    #[arg(short, long)]
-    name: String,
-
-    /// Number of times
-    #[arg(short, long, default_value_t = 1)]
-    count:u8,
-}
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -26,6 +13,7 @@ struct Cli {
 enum Commands {
     /// Adds fiels to app
     Add {name: Option<String>},
+    
 }
 
 

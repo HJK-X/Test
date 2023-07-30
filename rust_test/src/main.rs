@@ -1,50 +1,64 @@
-use clap::{Args, Parser, Subcommand};
+use clap::Parser;
 
-#[derive(Parser)]
-#[command(author, version, about, long_about = None)]
-#[command(propagate_version = true)]
-struct Cli {
-    #[command(subcommand)]
-    command: Commands,
-}
-
-
-#[derive(Subcommand)]
-enum Commands {
-    /// Add a password
-    Add(DefaultArgs),
-    
-    /// Get a password
-    Get(DefaultArgs),
-
-    /// List all stored services
-    List(DefaultArgs),
-
-    /// Update a password
-    Update(DefaultArgs),
-
-    /// Delete a password
-    Delete(DefaultArgs),
-
-    /// View password history
-    History(DefaultArgs),    
-}
-
-#[derive(Args)]
-struct DefaultArgs {
-    /// Website URL/Name
-    website: Option<String>,
-    /// Username/Email
-    username: Option<String>,
-    /// Password/Secure Note
-    password: Option<String>,
-}
-
+mod cli;
 
 fn main() {
-    let args = Args::parse();
+    let cli: cli::Cli = cli::Cli::parse();
 
-    for _ in 0..args.count {
-        println!("hello {}", args.name)
+    match &cli.command {
+        cli::Commands::Add(args) => {
+            handle_add_command(args);
+        }
+        cli::Commands::Get(args) => {
+            handle_get_command(args);
+        }
+        cli::Commands::List(args) => {
+            handle_list_command(args);
+        }
+        cli::Commands::Update(args) => {
+            handle_update_command(args);
+        }
+        cli::Commands::Delete(args) => {
+            handle_delete_command(args);
+        }
+        cli::Commands::History(args) => {
+            handle_history_command(args);
+        }
     }
+}
+
+fn handle_add_command(args: &cli::DefaultArgs) {
+    // Implement the logic to add a new password entry using the provided arguments.
+    // You can access fields like args.website, args.username, args.password, etc.
+    // ...
+}
+
+fn handle_get_command(args: &cli::DefaultArgs) {
+    // Implement the logic to retrieve the password for a specific website using the provided arguments.
+    // You can access fields like args.website, args.username, args.password, etc.
+    // ...
+}
+
+fn handle_list_command(args: &cli::DefaultArgs) {
+    // Implement the logic to list all stored websites/services.
+    // You can access fields like args.website, args.username, args.password, etc.
+    // ...
+}
+
+fn handle_update_command(args: &cli::DefaultArgs) {
+    // Implement the logic to update an existing password entry using the provided arguments.
+    // You can access fields like args.website, args.username, args.password, etc.
+    // ...
+}
+
+fn handle_delete_command(args: &cli::DefaultArgs) {
+    // Implement the logic to delete a password entry using the provided arguments.
+    // You can access fields like args.website, args.username, args.password, etc.
+    // ...
+}
+
+fn handle_history_command(args: &cli::DefaultArgs) {
+    // Implement the logic to handle the "history" command if needed.
+    // You can access fields like args.website, args.username, args.password, etc.
+    // ...
 }

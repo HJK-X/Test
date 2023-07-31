@@ -1,6 +1,7 @@
 use clap::Parser;
 
 mod cli;
+mod password_manager;
 
 fn main() {
     let cli: cli::Cli = cli::Cli::parse();
@@ -31,6 +32,7 @@ fn handle_add_command(args: &cli::DefaultArgs) {
     // Implement the logic to add a new password entry using the provided arguments.
     // You can access fields like args.website, args.username, args.password, etc.
     // ...
+
 }
 
 fn handle_get_command(args: &cli::DefaultArgs) {

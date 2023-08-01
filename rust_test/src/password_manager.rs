@@ -1,13 +1,24 @@
 use aes_gcm::{
     aead::{Aead, AeadCore, KeyInit, OsRng},
-    Aes256Gcm, Nonce, Key};
+    Aes256Gcm, Nonce, Key
+};
+use pbkdf2::pbkdf2_hmac;
 use rand::{Rng, thread_rng};
 use serde::{Serialize, Deserialize};
+use sha2::Sha256;
 
 
 const NONCE_SIZE: usize = 12;
 const KEY_SIZE: usize = 32;
 
+fn derive_key_from_master_password(master_password: &str, salt: &[u8;16]) -> [u8; KEY_SIZE] {
+    let mut key = [0u8; KEY_SIZE];
+    let rounds: u32 = 100_000;
+
+    pbkdf2_hmac::<Sha256>(master_password.as_bytes(), salt, rounds, &mut key);
+    
+    key
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PasswordEntry {

@@ -8,5 +8,7 @@ edition = "2021"
 [dependencies]
 aes-gcm = "0.10.2"
 clap = { version = "4.3.19", features = ["derive"] }
+pbkdf2 = "0.12.2"
 rand = "0.8.5"
 serde = { version = "1.0.175", features = ["derive"] }
+sha2 = "0.10.7"

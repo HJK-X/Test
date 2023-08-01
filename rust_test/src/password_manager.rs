@@ -1,7 +1,6 @@
-use aes_gcm::{
-    aead::{Aead, AeadCore, KeyInit, OsRng},
-    Aes256Gcm, Nonce, Key
-};
+use aead::{Aead, AeadCore, KeyInit, OsRng};
+use aes_gcm::{Aes256Gcm, Nonce, Key};
+use generic_array::GenericArray;
 use pbkdf2::pbkdf2_hmac;
 use rand::{Rng, thread_rng};
 use serde::{Serialize, Deserialize};
@@ -25,7 +24,7 @@ pub struct PasswordEntry {
     website: String,
     username: String,
     encrypted_password: Vec<u8>,
-    nonce: [u8; NONCE_SIZE],
+    nonce: Nonce,
 }
 
 
@@ -35,7 +34,7 @@ impl PasswordEntry {
             website, 
             username,
             encrypted_password,
-            nonce: [0u8; NONCE_SIZE],
+            nonce: [0u8; KEY_SIZE],
         }
     }
 
@@ -48,18 +47,14 @@ impl PasswordEntry {
     }
 
     pub fn encrypt_password(&mut self, plaintext_password: &str, key: &[u8; KEY_SIZE]) -> Result<(), String> {
-        let key = Key::<Aes256Gcm>::from_slice(key);
-        let cipher = Aes256Gcm::new(&key);
+        let key: &aes_gcm::aead::generic_array::GenericArray<u8, _> = Key::<Aes256Gcm>::from_slice(key);
+        let cipher: aes_gcm::AesGcm<aes_gcm::aes::Aes256, _, _> = Aes256Gcm::new(&key);
 
-        let mut nonce = [0u8; NONCE_SIZE];
-        thread_rng().fill(&mut nonce);
+        let nonce: [u8; 32] = Aes256Gcm::generate_nonce(&mut OsRng);
 
         let ciphertext = cipher.encrypt(
-            GenericArray::from_slice(&nonce),
-            Payload {
-                msg: plaintext_password.as_bytes(),
-                aad: &[],
-            },
+            &nonce,
+            plaintext_password.as_ref(),
         ).map_err(|_| "Encryption failed")?;
 
         self.encrypted_password = ciphertext;

@@ -407,8 +407,10 @@ dependencies = [
 name = "rust_test"
 version = "0.1.0"
 dependencies = [
+ "aead",
  "aes-gcm",
  "clap",
+ "generic-array",
  "pbkdf2",
  "rand",
  "serde",

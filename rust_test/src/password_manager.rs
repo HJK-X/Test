@@ -24,7 +24,7 @@ pub struct PasswordEntry {
     website: String,
     username: String,
     encrypted_password: Vec<u8>,
-    nonce: Nonce,
+    nonce: [u8; NONCE_SIZE],
 }
 
 
@@ -34,7 +34,7 @@ impl PasswordEntry {
             website, 
             username,
             encrypted_password,
-            nonce: [0u8; KEY_SIZE],
+            nonce: [0u8; NONCE_SIZE],
         }
     }
 
@@ -50,15 +50,15 @@ impl PasswordEntry {
         let key: &aes_gcm::aead::generic_array::GenericArray<u8, _> = Key::<Aes256Gcm>::from_slice(key);
         let cipher: aes_gcm::AesGcm<aes_gcm::aes::Aes256, _, _> = Aes256Gcm::new(&key);
 
-        let nonce: [u8; 32] = Aes256Gcm::generate_nonce(&mut OsRng);
+        let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
 
-        let ciphertext = cipher.encrypt(
+        let ciphertext: Vec<u8> = cipher.encrypt(
             &nonce,
             plaintext_password.as_ref(),
         ).map_err(|_| "Encryption failed")?;
 
         self.encrypted_password = ciphertext;
-        self.nonce = nonce;
+        self.nonce = nonce.into();
 
         Ok(())
     }
@@ -68,10 +68,7 @@ impl PasswordEntry {
 
         let plaintext = cipher.decrypt(
             GenericArray::from_slice(&self.nonce),
-            Payload {
-                msg: &self.encrypted_password,
-                aad: &[],
-            },
+            self.encrypted_password.as_ref(),
         ).map_err(|_| "Decryption failed")?;
 
         Ok(String::from_utf8_lossy(&plaintext).to_string())

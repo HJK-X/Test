@@ -14,3 +14,4 @@ pbkdf2 = "0.12.2"
 rand = "0.8.5"
 serde = { version = "1.0.175", features = ["derive"] }
 sha2 = "0.10.7"
+typenum = "1.16.0"

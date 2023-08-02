@@ -8,10 +8,11 @@ edition = "2021"
 [dependencies]
 aead = "0.5.2"
 aes-gcm = "0.10.2"
+argon2 = "0.5.1"
 clap = { version = "4.3.19", features = ["derive"] }
 generic-array = "0.14.7"
-pbkdf2 = "0.12.2"
 rand = "0.8.5"
+rand_core = "0.6.4"
 serde = { version = "1.0.175", features = ["derive"] }
 sha2 = "0.10.7"
 typenum = "1.16.0"

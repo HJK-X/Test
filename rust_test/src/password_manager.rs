@@ -1,8 +1,8 @@
-use aead::{Aead, AeadCore, KeyInit, OsRng};
+use aead::{Aead, AeadCore, KeyInit};
 use aes_gcm::{Aes256Gcm, Nonce, Key};
 use generic_array::GenericArray;
 use pbkdf2::pbkdf2_hmac;
-use rand::{Rng, thread_rng};
+use rand_core::OsRng;
 use serde::{Serialize, Deserialize};
 use sha2::Sha256;
 

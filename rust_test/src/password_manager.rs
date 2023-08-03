@@ -1,10 +1,10 @@
 use aead::{Aead, AeadCore, KeyInit};
 use aes_gcm::{Aes256Gcm, Nonce, Key};
 use generic_array::GenericArray;
-use pbkdf2::pbkdf2_hmac;
+use argon2::{self, Config};
 use rand_core::OsRng;
 use serde::{Serialize, Deserialize};
-use sha2::Sha256;
+use sha3::Sha512;
 
 
 const NONCE_SIZE: usize = 12;

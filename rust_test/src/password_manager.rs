@@ -14,7 +14,7 @@ fn derive_key_from_master_password(master_password: &str, salt: &[u8;16]) -> [u8
     let mut key = [0u8; KEY_SIZE];
     let rounds: u32 = 100_000;
 
-    pbkdf2_hmac::<Sha256>(master_password.as_bytes(), salt, rounds, &mut key);
+    
     
     key
 }

@@ -4,7 +4,7 @@ use generic_array::GenericArray;
 use argon2::{self, Config};
 use rand_core::OsRng;
 use serde::{Serialize, Deserialize};
-use sha3::Sha512;
+use sha3::Sha3_512;
 
 
 const NONCE_SIZE: usize = 12;

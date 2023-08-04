@@ -1,7 +1,7 @@
 use aead::{Aead, AeadCore, KeyInit};
 use aes_gcm::{Aes256Gcm, Nonce, Key};
 use generic_array::GenericArray;
-use argon2::{self, Config};
+use argon2::{self,  };
 use rand_core::OsRng;
 use serde::{Serialize, Deserialize};
 use sha3::Sha3_512;

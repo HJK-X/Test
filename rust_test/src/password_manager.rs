@@ -25,6 +25,7 @@ fn derive_key_from_master_password(master_password: &str, salt: &[u8; 32]) -> [u
     key
 }
 
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PasswordEntry {
     website: String,

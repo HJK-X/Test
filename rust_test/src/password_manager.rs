@@ -1,7 +1,12 @@
 use aead::{Aead, AeadCore, KeyInit};
 use aes_gcm::{Aes256Gcm, Nonce, Key};
 use generic_array::GenericArray;
-use argon2::{self,  };
+use argon2::{
+    password_hash::{
+        PasswordHash, PasswordHasher, PasswordVerifier, SaltString
+    },
+    Argon2
+};
 use rand_core::OsRng;
 use serde::{Serialize, Deserialize};
 use sha3::Sha3_512;
@@ -10,12 +15,13 @@ use sha3::Sha3_512;
 const NONCE_SIZE: usize = 12;
 const KEY_SIZE: usize = 32;
 
-fn derive_key_from_master_password(master_password: &str, salt: &[u8;16]) -> [u8; KEY_SIZE] {
+fn derive_key_from_master_password(master_password: &str, salt: SaltString) -> [u8; KEY_SIZE] {
     let mut key = [0u8; KEY_SIZE];
-    let rounds: u32 = 100_000;
+    
+    let argon2 = Argon2::default();
 
-    
-    
+    let password_hash = argon2.hash_password(master_password.as_bytes(), &salt)?.to_string();
+
     key
 }
 

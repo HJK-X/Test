@@ -20,7 +20,7 @@ fn derive_key_from_master_password(master_password: &str, salt: &[u8; 32]) -> [u
     
     let argon2 = Argon2::default();
 
-    Argon2::default().hash_password_into(master_password, &salt, &mut key)?;
+    Argon2::default().hash_password_into(master_password.as_bytes(), salt, &mut key);
 
     key
 }

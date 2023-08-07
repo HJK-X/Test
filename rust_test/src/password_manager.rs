@@ -18,7 +18,7 @@ const KEY_SIZE: usize = 32;
 fn derive_key_from_master_password(master_password: &str, salt: &[u8; 32]) -> [u8; KEY_SIZE] {
     let mut key = [0u8; KEY_SIZE];
 
-    Argon2::default().hash_password_into(master_password.as_bytes(), salt, &mut key);
+    Argon2::default().hash_password_into(master_password.as_bytes(), salt, &mut key).map_err(|_| "key failed to hash");
 
     key
 }

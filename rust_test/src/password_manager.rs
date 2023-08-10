@@ -15,12 +15,10 @@ use sha3::Sha3_512;
 const NONCE_SIZE: usize = 12;
 const KEY_SIZE: usize = 32;
 
-fn derive_key_from_master_password(master_password: &str, salt: &[u8; 32]) -> [u8; KEY_SIZE] {
+fn derive_key_from_master_password(master_password: &str, salt: &[u8; 32]) -> Result<[u8; KEY_SIZE], &'static str> {
     let mut key = [0u8; KEY_SIZE];
 
-    Argon2::default().hash_password_into(master_password.as_bytes(), salt, &mut key).map_err(|_| "key failed to hash");
-
-    key
+    Argon2::default().hash_password_into(master_password.as_bytes(), salt, &mut key).map(|_| key).map_err(|_| "Key derive failed")
 }
 
 

@@ -15,8 +15,8 @@ use sha3::Sha3_512;
 const NONCE_SIZE: usize = 12;
 const KEY_SIZE: usize = 32;
 
-fn derive_key_from_master_password(master_password: &str, salt: &[u8; 32]) -> Result<[u8; KEY_SIZE], &'static str> {
-    let mut key = [0u8; KEY_SIZE];
+fn derive_key_from_master_password(master_password: &str, salt: &[u8; NONCE_SIZE]) -> Result<[u8; KEY_SIZE], &'static str> {
+    let mut key: [u8; KEY_SIZE] = [0u8; KEY_SIZE];
 
     Argon2::default().hash_password_into(master_password.as_bytes(), salt, &mut key).map(|_| key).map_err(|_| "Key derive failed")
 }
@@ -49,9 +49,9 @@ impl PasswordEntry {
         &self.username
     }
 
-    pub fn encrypt_password(&mut self, plaintext_password: &str, key: &[u8; KEY_SIZE]) -> Result<(), String> {
-        let key: &aes_gcm::aead::generic_array::GenericArray<u8, _> = Key::<Aes256Gcm>::from_slice(key);
-        let cipher: aes_gcm::AesGcm<aes_gcm::aes::Aes256, _, _> = Aes256Gcm::new(&key);
+    pub fn encrypt_password(&mut self, plaintext_password: &str, master_password: &str) -> Result<(), String> {
+        let key: [u8; 32] = derive_key_from_master_password(master_password, &self.nonce).map_err(|_| "Failed to derive key from master password")?;
+        let cipher = Aes256Gcm::new(&key.into());
 
         let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
 
@@ -66,8 +66,9 @@ impl PasswordEntry {
         Ok(())
     }
 
-    pub fn decrypt_password(&self, key: &[u8; KEY_SIZE]) -> Result<String, String> {
-        let cipher = Aes256Gcm::new(GenericArray::from_slice(key));
+    pub fn decrypt_password(&self, master_password: &str) -> Result<String, String> {
+        let key: [u8; 32] = derive_key_from_master_password(master_password, &self.nonce).map_err(|_| "Failed to derive key from master password")?;
+        let cipher = Aes256Gcm::new(&key.into());
 
         let plaintext = cipher.decrypt(
             GenericArray::from_slice(&self.nonce),

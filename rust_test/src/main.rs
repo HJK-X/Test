@@ -1,10 +1,15 @@
 use clap::Parser;
+use uuid::Uuid;
+use std::time::{Duration, SystemTime};
+
 
 mod cli;
 mod password_manager;
 
 fn main() {
     let cli: cli::Cli = cli::Cli::parse();
+
+    let mut session_token: Option<Uuid> = None;
 
     match &cli.command {
         cli::Commands::Add(args) => {

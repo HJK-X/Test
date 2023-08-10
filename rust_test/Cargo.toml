@@ -17,3 +17,4 @@ serde = { version = "1.0.175", features = ["derive"] }
 sha2 = "0.10.7"
 sha3 = "0.10.8"
 typenum = "1.16.0"
+uuid = { version = "1.4.1", features = ["v4", "fast-rng"]}

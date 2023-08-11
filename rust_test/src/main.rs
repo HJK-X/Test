@@ -1,4 +1,4 @@
-use clap::Parser;
+use rustyline::{DefaultEditor, Result};
 use uuid::Uuid;
 use std::time::{Duration, SystemTime};
 
@@ -6,11 +6,22 @@ use std::time::{Duration, SystemTime};
 mod cli;
 mod password_manager;
 
-fn main() {
-    loop {
-        let cli: cli::Cli = cli::Cli::parse();
+fn main() -> Result<()>{
+    let mut rl = DefaultEditor::new()?;
 
-        match &cli.command {
+    loop {
+        let readline = rl.readline(">> ");
+
+        match readline {
+            Ok(line) => {
+                let trimmed = line.trim();
+                
+                if trimmed == "quit" {
+                    println!("Goodbye!");
+                }
+                rl.add_history_entry(line.as_str());
+                
+            }
             cli::Commands::Add(args) => {
                 handle_add_command(args);
             }

@@ -1,0 +1,11 @@
+C:\Users\justi\Desktop\Projects\Test\rust_test\target\debug\deps\bitflags-48f69cc2b47681bb.rmeta: C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\lib.rs C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\iter.rs C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\parser.rs C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\traits.rs C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\public.rs C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\internal.rs C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\external.rs
+
+C:\Users\justi\Desktop\Projects\Test\rust_test\target\debug\deps\bitflags-48f69cc2b47681bb.d: C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\lib.rs C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\iter.rs C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\parser.rs C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\traits.rs C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\public.rs C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\internal.rs C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\external.rs
+
+C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\lib.rs:
+C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\iter.rs:
+C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\parser.rs:
+C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\traits.rs:
+C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\public.rs:
+C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\internal.rs:
+C:\Users\justi\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bitflags-2.3.3\src\external.rs:

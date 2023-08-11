@@ -10,8 +10,6 @@ fn main() {
     loop {
         let cli: cli::Cli = cli::Cli::parse();
 
-        let mut session_token: Option<Uuid> = None;
-
         match &cli.command {
             cli::Commands::Add(args) => {
                 handle_add_command(args);

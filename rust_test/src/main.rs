@@ -7,28 +7,30 @@ mod cli;
 mod password_manager;
 
 fn main() {
-    let cli: cli::Cli = cli::Cli::parse();
+    loop {
+        let cli: cli::Cli = cli::Cli::parse();
 
-    let mut session_token: Option<Uuid> = None;
+        let mut session_token: Option<Uuid> = None;
 
-    match &cli.command {
-        cli::Commands::Add(args) => {
-            handle_add_command(args);
-        }
-        cli::Commands::Get(args) => {
-            handle_get_command(args);
-        }
-        cli::Commands::List(args) => {
-            handle_list_command(args);
-        }
-        cli::Commands::Update(args) => {
-            handle_update_command(args);
-        }
-        cli::Commands::Delete(args) => {
-            handle_delete_command(args);
-        }
-        cli::Commands::History(args) => {
-            handle_history_command(args);
+        match &cli.command {
+            cli::Commands::Add(args) => {
+                handle_add_command(args);
+            }
+            cli::Commands::Get(args) => {
+                handle_get_command(args);
+            }
+            cli::Commands::List(args) => {
+                handle_list_command(args);
+            }
+            cli::Commands::Update(args) => {
+                handle_update_command(args);
+            }
+            cli::Commands::Delete(args) => {
+                handle_delete_command(args);
+            }
+            cli::Commands::History(args) => {
+                handle_history_command(args);
+            }
         }
     }
 }

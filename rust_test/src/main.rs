@@ -22,6 +22,10 @@ fn main() -> Result<()>{
                 rl.add_history_entry(line.as_str());
                 
             }
+            Err(_) => {
+                println("Error reading input.");
+                break;
+            }
             cli::Commands::Add(args) => {
                 handle_add_command(args);
             }

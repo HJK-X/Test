@@ -6,7 +6,7 @@ use std::time::{Duration, SystemTime};
 mod cli;
 mod password_manager;
 
-fn main() -> Result<()>{
+fn main() -> Result<()> {
     let mut rl = DefaultEditor::new()?;
 
     loop {
@@ -23,8 +23,8 @@ fn main() -> Result<()>{
                 
             }
             Err(_) => {
-                println("Error reading input.");
-                break;
+                println!("Error reading input.");
+                ()
             }
             cli::Commands::Add(args) => {
                 handle_add_command(args);

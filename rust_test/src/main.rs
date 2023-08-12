@@ -1,3 +1,4 @@
+use clap::Parser;
 use rustyline::{DefaultEditor, Result};
 use uuid::Uuid;
 use std::time::{Duration, SystemTime};
@@ -21,28 +22,23 @@ fn main() -> Result<()> {
                 }
                 rl.add_history_entry(line.as_str());
                 
+                if let Ok(cli) = cli::Cli::parse_from(trimmed.split_whitespace()) {
+                    match &cli.command {
+                        cli::Commands::Add(args) => {
+                            handle_add_command(&args);
+                        }
+                        cli::Commands::Get(args) => todo!(),
+                        cli::Commands::List(_) => todo!(),
+                        cli::Commands::Update(_) => todo!(),
+                        cli::Commands::Delete(_) => todo!(),
+                        cli::Commands::History(_) => todo!(),
+                    }
+                }
+
             }
             Err(_) => {
                 println!("Error reading input.");
                 ()
-            }
-            cli::Commands::Add(args) => {
-                handle_add_command(args);
-            }
-            cli::Commands::Get(args) => {
-                handle_get_command(args);
-            }
-            cli::Commands::List(args) => {
-                handle_list_command(args);
-            }
-            cli::Commands::Update(args) => {
-                handle_update_command(args);
-            }
-            cli::Commands::Delete(args) => {
-                handle_delete_command(args);
-            }
-            cli::Commands::History(args) => {
-                handle_history_command(args);
             }
         }
     }

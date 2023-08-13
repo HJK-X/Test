@@ -1,10 +1,11 @@
 use clap::Parser;
+use clap_repl::ClapEditor;
+use console::style;
 use rustyline::{DefaultEditor, Result};
 use rustyline::error::ReadlineError;
 use clap::Error as ClapError;
 use uuid::Uuid;
 use std::time::{Duration, SystemTime};
-
 
 mod cli;
 mod password_manager;

@@ -10,6 +10,8 @@ aead = "0.5.2"
 aes-gcm = "0.10.2"
 argon2 = "0.5.1"
 clap = { version = "4.3.19", features = ["derive"] }
+clap-repl = "0.1.0"
+console = "0.15.7"
 generic-array = "0.14.7"
 rand = "0.8.5"
 rand_core = "0.6.4"

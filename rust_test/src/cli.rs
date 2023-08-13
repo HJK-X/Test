@@ -1,6 +1,6 @@
 use clap::{Args, Parser, Subcommand};
 
-#[derive(Parser)]
+#[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 #[command(propagate_version = true)]
 pub struct Cli {
@@ -9,7 +9,7 @@ pub struct Cli {
 }
 
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 pub enum Commands {
     /// Add a password
     Add(DefaultArgs),
@@ -30,7 +30,7 @@ pub enum Commands {
     History(DefaultArgs),    
 }
 
-#[derive(Args)]
+#[derive(Args, Debug)]
 pub struct DefaultArgs {
     /// Website URL/Name
     pub website: Option<String>,

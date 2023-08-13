@@ -12,6 +12,8 @@ mod password_manager;
 fn main() -> Result<()> {
     let mut rl = DefaultEditor::new()?;
 
+    let password = rpassword::prompt_password("Your password: ").unwrap();
+
     loop {
         let readline = rl.readline(">> ");
 

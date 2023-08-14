@@ -50,6 +50,8 @@ fn handle_add_command(args: &cli::DefaultArgs) {
     // ...
 
     println!("Adding password for {:?}", args.website);
+
+    let serialized = serde_json::to_string(&password_manager::PasswordEntry).unwrap();
 }
 
 fn handle_get_command(args: &cli::DefaultArgs) {

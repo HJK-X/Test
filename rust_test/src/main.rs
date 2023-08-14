@@ -4,6 +4,7 @@ use clap_repl::ClapEditor;
 use console::style;
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
+use serde::{Serialize, Deserialize};
 use std::time::{Duration, SystemTime};
 use uuid::Uuid;
 

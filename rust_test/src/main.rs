@@ -45,15 +45,20 @@ fn main() {
 }
 
 fn handle_add_command(args: &cli::DefaultArgs) {
-    // Implement the logic to add a new password entry using the provided arguments.
-    // You can access fields like args.website, args.username, args.password, etc.
-    // ...
-
     println!("Adding password for {:?}", args.website);
 
-    let password: password_manager::PasswordEntry = password_manager::PasswordEntry::new(args.website, args.username, password_manager::PasswordEntry::encrypt_password(&mut self, args.password, master_password));
+    let mut password_entries: Vec<password_manager::PasswordEntry> = load_password_entries();
 
-    let serialized = serde_json::to_string(&).unwrap();
+    let new_entry = password_manager::PasswordEntry::new(
+        args.website.clone().unwrap_or_default(),
+        args.username.clone().unwrap_or_default(),
+        args.password.clone().unwrap_or_default().into_bytes(),
+    );
+
+    password_entries.push(new_entry);
+    save_password_entries(&password_entries);
+
+    println!("Added password for {:?}", args.website);
 }
 
 fn handle_get_command(args: &cli::DefaultArgs) {
@@ -94,4 +99,35 @@ fn handle_history_command(args: &cli::DefaultArgs) {
     // ...
     
     println!("Password history for {:?}:", args.website);
+}
+
+
+fn load_password_entries() -> Vec<password_manager::PasswordEntry> {
+    let mut file = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .open("passwords.json")
+        .expect("Failed to open passwords file");
+
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)
+        .expect("Failed to read passwords file");
+
+    serde_json::from_str(&contents).unwrap_or_default()
+}
+
+fn save_password_entries(entries: &[password_manager::PasswordEntry]) {
+    let mut file = OpenOptions::new()
+        .write(true)
+        .truncate(true)
+        .create(true)
+        .open("passwords.json")
+        .expect("Failed to open passwords file");
+
+    let json_string = serde_json::to_string_pretty(entries)
+        .expect("Failed to serialize password entries to JSON");
+
+    file.write_all(json_string.as_bytes())
+        .expect("Failed to write password entries to file");
 }

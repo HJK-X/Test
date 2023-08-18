@@ -4,12 +4,12 @@ use clap_repl::ClapEditor;
 use console::style;
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
-use serde::{Serialize, Deserialize};
-use std::time::{Duration, SystemTime};
-use uuid::Uuid;
+use serde::{Deserialize, Serialize};
+use serde_json;
 use std::fs::OpenOptions;
 use std::io::{Read, Write};
-use serde_json;
+use std::time::{Duration, SystemTime};
+use uuid::Uuid;
 
 mod cli;
 mod password_manager;
@@ -17,7 +17,7 @@ mod password_manager;
 fn main() {
     let mut rl = ClapEditor::<cli::Commands>::new();
 
-    let password = rpassword::prompt_password("Your password: ").unwrap();
+    let master_password = rpassword::prompt_password("Your password: ").unwrap();
 
     loop {
         let Some(command) = rl.read_command() else {
@@ -26,31 +26,41 @@ fn main() {
 
         match command {
             cli::Commands::Add(args) => {
-                handle_add_command(&args);
+                handle_add_command(&args, &master_password);
             }
             cli::Commands::Get(args) => {
-                handle_get_command(&args);
+                handle_get_command(&args, &master_password);
             }
             cli::Commands::List(args) => {
-                handle_list_command(&args);
+                handle_list_command(&args, &master_password);
             }
             cli::Commands::Update(args) => {
-                handle_update_command(&args);
+                handle_update_command(&args, &master_password);
             }
             cli::Commands::Delete(args) => {
-                handle_delete_command(&args);
+                handle_delete_command(&args, &master_password);
             }
             cli::Commands::History(args) => {
-                handle_history_command(&args);
+                handle_history_command(&args, &master_password);
             }
         }
     }
 }
 
-fn handle_add_command(args: &cli::DefaultArgs) {
+fn handle_add_command(args: &cli::DefaultArgs, master_password: &str) {
     println!("Adding password for {:?}", args.website);
 
     let mut password_entries: Vec<password_manager::PasswordEntry> = load_password_entries();
+
+    if let Some(password) = args.password.clone() {
+        let mut new_entry = password_manager::PasswordEntry::new(
+            args.website.clone().unwrap_or_default(),
+            args.username.clone().unwrap_or_default(),
+            Vec::new(),
+        );
+
+        let encrypted_password = new_entry.encrypt_password(&password, &master_password);
+    }
 
     let new_entry = password_manager::PasswordEntry::new(
         args.website.clone().unwrap_or_default(),
@@ -64,7 +74,7 @@ fn handle_add_command(args: &cli::DefaultArgs) {
     println!("Added password for {:?}", args.website);
 }
 
-fn handle_get_command(args: &cli::DefaultArgs) {
+fn handle_get_command(args: &cli::DefaultArgs, master_password: &str) {
     // Implement the logic to retrieve the password for a specific website using the provided arguments.
     // You can access fields like args.website, args.username, args.password, etc.
     // ...
@@ -72,7 +82,7 @@ fn handle_get_command(args: &cli::DefaultArgs) {
     println!("The password for {:?} is {:?}", args.website, args.password);
 }
 
-fn handle_list_command(args: &cli::DefaultArgs) {
+fn handle_list_command(args: &cli::DefaultArgs, master_password: &str) {
     // Implement the logic to list all stored websites/services.
     // You can access fields like args.website, args.username, args.password, etc.
     // ...
@@ -80,30 +90,29 @@ fn handle_list_command(args: &cli::DefaultArgs) {
     println!("Listing passwords:");
 }
 
-fn handle_update_command(args: &cli::DefaultArgs) {
+fn handle_update_command(args: &cli::DefaultArgs, master_password: &str) {
     // Implement the logic to update an existing password entry using the provided arguments.
     // You can access fields like args.website, args.username, args.password, etc.
     // ...
-    
+
     println!("Updating password for {:?}", args.website);
 }
 
-fn handle_delete_command(args: &cli::DefaultArgs) {
+fn handle_delete_command(args: &cli::DefaultArgs, master_password: &str) {
     // Implement the logic to delete a password entry using the provided arguments.
     // You can access fields like args.website, args.username, args.password, etc.
     // ...
-    
+
     println!("Deleting password for {:?}", args.website);
 }
 
-fn handle_history_command(args: &cli::DefaultArgs) {
+fn handle_history_command(args: &cli::DefaultArgs, master_password: &str) {
     // Implement the logic to handle the "history" command if needed.
     // You can access fields like args.website, args.username, args.password, etc.
     // ...
-    
+
     println!("Password history for {:?}:", args.website);
 }
-
 
 fn load_password_entries() -> Vec<password_manager::PasswordEntry> {
     let mut file = OpenOptions::new()

@@ -7,6 +7,9 @@ use rustyline::{DefaultEditor, Result};
 use serde::{Serialize, Deserialize};
 use std::time::{Duration, SystemTime};
 use uuid::Uuid;
+use std::fs::OpenOptions;
+use std::io::{Read, Write};
+use serde_json;
 
 mod cli;
 mod password_manager;

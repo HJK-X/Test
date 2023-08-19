@@ -43,6 +43,7 @@ fn main() {
             cli::Commands::History(args) => {
                 handle_history_command(&args, &master_password);
             }
+            cli::Commands::Generate { length } => todo!(),
         }
     }
 }
@@ -76,9 +77,6 @@ fn handle_add_command(args: &cli::DefaultArgs, master_password: &str) {
 }
 
 fn handle_get_command(args: &cli::DefaultArgs, master_password: &str) {
-    // Implement the logic to retrieve the password for a specific website using the provided arguments.
-    // You can access fields like args.website, args.username, args.password, etc.
-    // ...
     let password_entries: Vec<password_manager::PasswordEntry> = load_password_entries();
 
     if let Some(website) = &args.website {
@@ -108,11 +106,10 @@ fn handle_get_command(args: &cli::DefaultArgs, master_password: &str) {
 }
 
 fn handle_list_command(args: &cli::DefaultArgs, master_password: &str) {
-    // Implement the logic to list all stored websites/services.
-    // You can access fields like args.website, args.username, args.password, etc.
-    // ...
-
     println!("Listing passwords:");
+    let password_entries: Vec<password_manager::PasswordEntry> = load_password_entries();
+
+    
 }
 
 fn handle_update_command(args: &cli::DefaultArgs, master_password: &str) {

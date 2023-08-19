@@ -1,4 +1,5 @@
-use argon2::{password_hash::PasswordHasher, Argon2};
+use argon2::password_hash::{PasswordHash, PasswordHasher, Salt, SaltString};
+use argon2::Argon2;
 use clap::Error as ClapError;
 use clap::Parser;
 use clap_repl::ClapEditor;
@@ -8,6 +9,7 @@ use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
 use serde::{Deserialize, Serialize};
 use serde_json;
+use std::fs;
 use std::fs;
 use std::fs::OpenOptions;
 use std::io::{Read, Write};
@@ -74,7 +76,14 @@ fn main() -> Result<()> {
 }
 
 fn hash_master_password(master_password: &str) {
-    let key: [u8; 32] = password_manager::derive_key_from_master_password(master_password, SALT);
+    let salt = SaltString::b64_encode(SALT)
+        .map_err(|err| format!("Failed to encode salt: {}", err))
+        .unwrap_or_else(|err| panic!("{}", err));
+
+    let hash = Argon2::default()
+        .hash_password(master_password.as_bytes(), salt.as_ref())
+        .map_err(|err| format!("Failed to hash password: {}", err))
+        .unwrap_or_else(|err| panic!("{}", err));
 }
 
 fn save_master_password_hash(master_password: &str) {

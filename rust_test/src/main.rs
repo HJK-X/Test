@@ -94,8 +94,7 @@ fn handle_get_command(args: &cli::DefaultArgs, master_password: &str) {
                     println!("Failed to decrypt password: {}", err);
                 }
             }
-        }
-        else {
+        } else {
             println!("No password entry found for {:?}", website);
         }
     } else {
@@ -106,10 +105,27 @@ fn handle_get_command(args: &cli::DefaultArgs, master_password: &str) {
 }
 
 fn handle_list_command(args: &cli::DefaultArgs, master_password: &str) {
-    println!("Listing passwords:");
-    let password_entries: Vec<password_manager::PasswordEntry> = load_password_entries();
+    let mut password_entries: Vec<password_manager::PasswordEntry> = load_password_entries();
+    if password_entries.is_empty() {
+        println!("No password entries found.");
+    } else {
+        password_entries.sort_by(|a, b| a.website().cmp(b.website()));
 
-    
+        println!("Listing passwords:");
+        for entry in password_entries.iter() {
+            println!("Website: {}", entry.website());
+            println!("\tUsername: {}", entry.username());
+            let decrypted_password = entry.decrypt_password(master_password);
+            match decrypted_password {
+                Ok(password) => {
+                    println!("\tPassword: {:?}", password);
+                }
+                Err(err) => {
+                    println!("\tFailed to decrypt password: {}", err);
+                }
+            }
+        }
+    }
 }
 
 fn handle_update_command(args: &cli::DefaultArgs, master_password: &str) {

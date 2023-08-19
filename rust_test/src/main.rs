@@ -1,36 +1,67 @@
 use argon2::password_hash::{PasswordHash, PasswordHasher, Salt, SaltString};
-use argon2::Argon2;
+use argon2::{Argon2, PasswordVerifier};
 use clap::Error as ClapError;
 use clap::Parser;
 use clap_repl::ClapEditor;
 use console::style;
-use password_manager::PasswordEntry;
+use password_manager::{PasswordEntry, derive_key_from_master_password};
 use rustyline::error::ReadlineError;
-use rustyline::{DefaultEditor, Result};
+use rustyline::DefaultEditor;
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::fs;
-use std::fs;
 use std::fs::OpenOptions;
 use std::io::{Read, Write};
+use std::path::Path;
 use std::time::{Duration, SystemTime};
 use uuid::Uuid;
 
 mod cli;
 mod password_manager;
 
-const SALT: &[u8] = b"uniquemasterpasswordsalt";
+const MASTER_SALT: &[u8; 12] = b"uniquemaster";
+const MASTER_HASH_FILE: &str = "master_password_hash.bin";
 
-fn main() -> Result<()> {
-    let mut rl = DefaultEditor::new()?;
+fn main() -> Result<(), String> {
+    if master_hash_file_exists() {
+        let master_password: String =
+            rpassword::prompt_password("Input your master password: ").unwrap();
+        let master_password_confirmation =
+            rpassword::prompt_password("Retype your master password: ").unwrap();
+        if master_password == master_password_confirmation {
+            save_master_password_hash(&master_password)?;
+        } else {
+            panic!("Master password does not match")
+        }
+    }
+
+    let master_password_hash: [u8; 32]= load_master_password_hash()?;
 
     let master_password = rpassword::prompt_password("Your password: ").unwrap();
+
+    if derive_key_from_master_password(&master_password, MASTER_SALT)? == master_password_hash
+    {
+        println!("Logged in");
+    }
+    else {
+        panic!("Master password was incorrect")
+    }
+
+    let mut rl = DefaultEditor::new().map_err(|_| "Could not start rustyline")?;
     loop {
         let readline = rl.readline(">> ");
         match readline {
             Ok(line) => {
                 println!("Line: {}", line);
                 println!("{}", master_password);
+                let trimmed = line.trim();
+
+                match trimmed {
+                    "add" => {
+                        handle_add_command(&master_password);
+                    }
+                    _ => println!("Unknown command"),
+                }
             }
             Err(ReadlineError::Interrupted) => {
                 println!("interrupted");
@@ -75,31 +106,35 @@ fn main() -> Result<()> {
     // }
 }
 
-fn hash_master_password(master_password: &str) {
-    let salt = SaltString::b64_encode(SALT)
-        .map_err(|err| format!("Failed to encode salt: {}", err))
-        .unwrap_or_else(|err| panic!("{}", err));
-
-    let hash = Argon2::default()
-        .hash_password(master_password.as_bytes(), salt.as_ref())
-        .map_err(|err| format!("Failed to hash password: {}", err))
-        .unwrap_or_else(|err| panic!("{}", err));
+fn master_hash_file_exists() -> bool {
+    Path::new(MASTER_HASH_FILE).exists()
 }
 
-fn save_master_password_hash(master_password: &str) {
-    let argon2: Argon2<'_> = Argon2::default();
-    let hash: String = argon2
-        .hash_password(master_password.as_bytes(), SALT.as_ref())
-        .unwrap()
-        .to_string();
+fn save_master_password_hash(master_password: &str) -> Result<(), String> {
+    let hash: [u8; 32] =
+        password_manager::derive_key_from_master_password(master_password, MASTER_SALT)
+            .map_err(|_| "Failed to derive key from master password")?;
 
-    fs::write("master_password_hash.txt", hash).expect("Failed to save password");
+    fs::write(MASTER_HASH_FILE, &hash).map_err(|_| "Failed to save hash to file")?;
 
-    println!("Master password hash saved successfully.")
+    println!("Master password hash saved successfully.");
+    Ok(())
 }
 
-fn load_master_password_hash() -> String {
-    fs::read_to_string("master_password_hash.txt").expect("Failed to read saved password")
+fn load_master_password_hash() -> Result<[u8; 32], String> {
+    if master_hash_file_exists() {
+        return Err("Hash file does not exist".into());
+    }
+    let hash = fs::read(MASTER_HASH_FILE).map_err(|_| "Failed to load hash from file")?;
+
+    if hash.len() != 32 {
+        return Err("Invalid hash length".into());
+    }
+
+    let mut hash_array: [u8; 32] = [0u8; 32];
+    hash_array.copy_from_slice(&hash);
+
+    Ok(hash_array)
 }
 
 fn handle_add_command(args: &cli::DefaultArgs, master_password: &str) {

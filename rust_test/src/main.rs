@@ -113,7 +113,13 @@ fn handle_list_command(args: &cli::DefaultArgs, master_password: &str) {
 
         println!("Listing passwords:");
         for entry in password_entries.iter() {
-            println!("Website: {}", entry.website());
+            if let Some(website) = &args.website {
+                println!("Website: {}", website);
+            }
+            else {
+                println!("Website: unknown")
+            }
+
             println!("\tUsername: {}", entry.username());
             let decrypted_password = entry.decrypt_password(master_password);
             match decrypted_password {

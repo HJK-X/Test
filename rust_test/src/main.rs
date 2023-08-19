@@ -60,24 +60,49 @@ fn handle_add_command(args: &cli::DefaultArgs, master_password: &str) {
         );
 
         let encrypted_password = new_entry.encrypt_password(&password, &master_password);
+
+        match encrypted_password {
+            Ok(_) => {
+                password_entries.push(new_entry);
+                save_password_entries(&password_entries);
+            }
+            Err(err) => {
+                println!("Failed to encrypt password: {}", err);
+            }
+        }
+    } else {
+        println!("Password is required to add a new entry.");
     }
-
-    let new_entry = password_manager::PasswordEntry::new(
-        args.website.clone().unwrap_or_default(),
-        args.username.clone().unwrap_or_default(),
-        args.password.clone().unwrap_or_default().into_bytes(),
-    );
-
-    password_entries.push(new_entry);
-    save_password_entries(&password_entries);
-
-    println!("Added password for {:?}", args.website);
 }
 
 fn handle_get_command(args: &cli::DefaultArgs, master_password: &str) {
     // Implement the logic to retrieve the password for a specific website using the provided arguments.
     // You can access fields like args.website, args.username, args.password, etc.
     // ...
+    let password_entries: Vec<password_manager::PasswordEntry> = load_password_entries();
+
+    if let Some(website) = &args.website {
+        if let Some(entry) = password_entries
+            .iter()
+            .find(|entry| entry.website() == website)
+        {
+            let decrypted_password = entry.decrypt_password(&master_password);
+
+            match decrypted_password {
+                Ok(password) => {
+                    println!("Password for {:?}: {}", website, password);
+                }
+                Err(err) => {
+                    println!("Failed to decrypt password: {}", err);
+                }
+            }
+        }
+        else {
+            println!("No password entry found for {:?}", website);
+        }
+    } else {
+        println!("Website is required to retrieve a password.");
+    }
 
     println!("The password for {:?} is {:?}", args.website, args.password);
 }

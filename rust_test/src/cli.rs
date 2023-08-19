@@ -19,6 +19,12 @@ pub enum Commands {
 
     /// View password history
     History(DefaultArgs),    
+
+    /// Generate a new password
+    Generate {
+        length: Option<u16>
+    },
+
 }
 
 #[derive(Args, Debug)]

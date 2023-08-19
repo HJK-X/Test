@@ -2,6 +2,7 @@ use clap::Error as ClapError;
 use clap::Parser;
 use clap_repl::ClapEditor;
 use console::style;
+use password_manager::PasswordEntry;
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
 use serde::{Deserialize, Serialize};
@@ -39,9 +40,6 @@ fn main() {
             }
             cli::Commands::Delete(args) => {
                 handle_delete_command(&args, &master_password);
-            }
-            cli::Commands::History(args) => {
-                handle_history_command(&args, &master_password);
             }
             cli::Commands::Generate { length } => todo!(),
         }
@@ -145,29 +143,31 @@ fn handle_update_command(args: &cli::DefaultArgs, master_password: &str) {
     if password_entries.is_empty() {
         println!("No password entries found.");
     } else {
-        password_entries.retain(|entry| {
-            
-        })
-        let website_to_update = args.website.as_ref().expect("Website is required");
-
-        if let Some(entry_index) = password_entries.iter().position(|entry| entry.website() == website_to_update) {
-            let mut entry = &mut password_entries[entry_index];
-
-            if let Some(new_username) = &args.username {
-                entry.update_username(new_username.clone());
+        let mut updated_entries: Vec<PasswordEntry> = Vec::new();
+        for entry in password_entries.iter_mut() {
+            if let Some(website) = &args.website {
+                if entry.website() == website {
+                    if let Some(new_username) = &args.username {
+                        entry.update_username(new_username.clone());
+                    }
+                    if let Some(new_password) = &args.password {
+                        if let Err(err) = entry.encrypt_password(new_password, master_password) {
+                            println!("Failed to encrypt new password: {}", err);
+                        }
+                    }
+                    updated_entries.push(entry);
+                }
+            } else {
+                updated_entries.push(entry);
             }
-
-            if let Some(new_password) = &args.password {
-                entry.encrypt_password(new_password, master_password)
-                    .expect("Failed to encrypt password");
-            }
-
-            save_password_entries(&password_entries);
-
-            println!("Password entry updated for website: {}", entry.website());
-        } else {
-            println!("No password entry found for website: {}", website_to_update);
         }
+
+        password_entries.clear();
+        password_entries.extend(updated_entries);
+
+        save_password_entries(&password_entries);
+
+        println!("Password entry updated successfully.");
     }
 }
 
@@ -177,14 +177,31 @@ fn handle_delete_command(args: &cli::DefaultArgs, master_password: &str) {
     // ...
 
     println!("Deleting password for {:?}", args.website);
-}
+    let mut password_entries: Vec<password_manager::PasswordEntry> = load_password_entries();
 
-fn handle_history_command(args: &cli::DefaultArgs, master_password: &str) {
-    // Implement the logic to handle the "history" command if needed.
-    // You can access fields like args.website, args.username, args.password, etc.
-    // ...
+    if password_entries.is_empty() {
+        println!("No password entries found.");
+    } else {
+        let original_len = password_entries.len();
+        password_entries.retain(|entry| {
+            if let Some(website) = &args.website {
+                if entry.website() == website {
+                    println!("Deleted password entry for website: {:?}", website);
+                    false
+                } else {
+                    true
+                }
+            } else {
+                true
+            }
+        });
 
-    println!("Password history for {:?}:", args.website);
+        if password_entries.len() < original_len {
+            save_password_entries(&password_entries);
+        } else {
+            println!("No password entries matched the specified criteria.");
+        }
+    }
 }
 
 fn load_password_entries() -> Vec<password_manager::PasswordEntry> {

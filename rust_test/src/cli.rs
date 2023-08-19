@@ -16,10 +16,7 @@ pub enum Commands {
 
     /// Delete a password
     Delete(DefaultArgs),
-
-    /// View password history
-    History(DefaultArgs),    
-
+    
     /// Generate a new password
     Generate {
         length: Option<u16>

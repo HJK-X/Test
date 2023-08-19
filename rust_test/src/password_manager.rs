@@ -49,6 +49,10 @@ impl PasswordEntry {
         &self.username
     }
 
+    pub fn update_username(&mut self, new_username: String) {
+        self.username = new_username;
+    }
+
     pub fn encrypt_password(&mut self, plaintext_password: &str, master_password: &str) -> Result<(), String> {
         let key: [u8; 32] = derive_key_from_master_password(master_password, &self.nonce).map_err(|_| "Failed to derive key from master password")?;
         let cipher = Aes256Gcm::new(&key.into());

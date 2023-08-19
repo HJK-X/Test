@@ -114,13 +114,18 @@ fn handle_list_command(args: &cli::DefaultArgs, master_password: &str) {
         println!("Listing passwords:");
         for entry in password_entries.iter() {
             if let Some(website) = &args.website {
-                println!("Website: {}", website);
+                if entry.website() != website {
+                    continue;
+                }
             }
-            else {
-                println!("Website: unknown")
+            if let Some(username) = &args.username {
+                if entry.username() != username {
+                    continue;
+                }
             }
-
+            println!("Website: {}", entry.website());
             println!("\tUsername: {}", entry.username());
+
             let decrypted_password = entry.decrypt_password(master_password);
             match decrypted_password {
                 Ok(password) => {
@@ -135,11 +140,35 @@ fn handle_list_command(args: &cli::DefaultArgs, master_password: &str) {
 }
 
 fn handle_update_command(args: &cli::DefaultArgs, master_password: &str) {
-    // Implement the logic to update an existing password entry using the provided arguments.
-    // You can access fields like args.website, args.username, args.password, etc.
-    // ...
+    let mut password_entries: Vec<password_manager::PasswordEntry> = load_password_entries();
 
-    println!("Updating password for {:?}", args.website);
+    if password_entries.is_empty() {
+        println!("No password entries found.");
+    } else {
+        password_entries.retain(|entry| {
+            
+        })
+        let website_to_update = args.website.as_ref().expect("Website is required");
+
+        if let Some(entry_index) = password_entries.iter().position(|entry| entry.website() == website_to_update) {
+            let mut entry = &mut password_entries[entry_index];
+
+            if let Some(new_username) = &args.username {
+                entry.update_username(new_username.clone());
+            }
+
+            if let Some(new_password) = &args.password {
+                entry.encrypt_password(new_password, master_password)
+                    .expect("Failed to encrypt password");
+            }
+
+            save_password_entries(&password_entries);
+
+            println!("Password entry updated for website: {}", entry.website());
+        } else {
+            println!("No password entry found for website: {}", website_to_update);
+        }
+    }
 }
 
 fn handle_delete_command(args: &cli::DefaultArgs, master_password: &str) {

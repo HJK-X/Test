@@ -1,3 +1,4 @@
+use argon2::{password_hash::PasswordHasher, Argon2};
 use clap::Error as ClapError;
 use clap::Parser;
 use clap_repl::ClapEditor;
@@ -7,6 +8,7 @@ use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
 use serde::{Deserialize, Serialize};
 use serde_json;
+use std::fs;
 use std::fs::OpenOptions;
 use std::io::{Read, Write};
 use std::time::{Duration, SystemTime};
@@ -15,35 +17,80 @@ use uuid::Uuid;
 mod cli;
 mod password_manager;
 
-fn main() {
-    let mut rl = ClapEditor::<cli::Commands>::new();
+const SALT: &[u8] = b"uniquemasterpasswordsalt";
+
+fn main() -> Result<()> {
+    let mut rl = DefaultEditor::new()?;
 
     let master_password = rpassword::prompt_password("Your password: ").unwrap();
-
     loop {
-        let Some(command) = rl.read_command() else {
-            continue;
-        };
-
-        match command {
-            cli::Commands::Add(args) => {
-                handle_add_command(&args, &master_password);
+        let readline = rl.readline(">> ");
+        match readline {
+            Ok(line) => {
+                println!("Line: {}", line);
+                println!("{}", master_password);
             }
-            cli::Commands::Get(args) => {
-                handle_get_command(&args, &master_password);
+            Err(ReadlineError::Interrupted) => {
+                println!("interrupted");
+                break;
             }
-            cli::Commands::List(args) => {
-                handle_list_command(&args, &master_password);
+            Err(err) => {
+                println!("Error: {:?}", err);
+                break;
             }
-            cli::Commands::Update(args) => {
-                handle_update_command(&args, &master_password);
-            }
-            cli::Commands::Delete(args) => {
-                handle_delete_command(&args, &master_password);
-            }
-            cli::Commands::Generate { length } => todo!(),
         }
     }
+
+    Ok(())
+
+    // let mut rl = ClapEditor::<cli::Commands>::new();
+
+    // let master_password = rpassword::prompt_password("Your password: ").unwrap();
+
+    // loop {
+    //     let Some(command) = rl.read_command() else {
+    //         continue;
+    //     };
+
+    //     match command {
+    //         cli::Commands::Add(args) => {
+    //             handle_add_command(&args, &master_password);
+    //         }
+    //         cli::Commands::Get(args) => {
+    //             handle_get_command(&args, &master_password);
+    //         }
+    //         cli::Commands::List(args) => {
+    //             handle_list_command(&args, &master_password);
+    //         }
+    //         cli::Commands::Update(args) => {
+    //             handle_update_command(&args, &master_password);
+    //         }
+    //         cli::Commands::Delete(args) => {
+    //             handle_delete_command(&args, &master_password);
+    //         }
+    //         cli::Commands::Generate { length } => todo!(),
+    //     }
+    // }
+}
+
+fn hash_master_password(master_password: &str) {
+    let key: [u8; 32] = password_manager::derive_key_from_master_password(master_password, SALT);
+}
+
+fn save_master_password_hash(master_password: &str) {
+    let argon2: Argon2<'_> = Argon2::default();
+    let hash: String = argon2
+        .hash_password(master_password.as_bytes(), SALT.as_ref())
+        .unwrap()
+        .to_string();
+
+    fs::write("master_password_hash.txt", hash).expect("Failed to save password");
+
+    println!("Master password hash saved successfully.")
+}
+
+fn load_master_password_hash() -> String {
+    fs::read_to_string("master_password_hash.txt").expect("Failed to read saved password")
 }
 
 fn handle_add_command(args: &cli::DefaultArgs, master_password: &str) {
@@ -146,7 +193,11 @@ fn handle_update_command(args: &cli::DefaultArgs, master_password: &str) {
         for entry in password_entries.iter_mut() {
             if let Some(website) = &args.website {
                 if entry.website() == website {
-                    entry.update_fields(args.username.clone(), args.password.clone(), master_password);
+                    entry.update_fields(
+                        args.username.clone(),
+                        args.password.clone(),
+                        master_password,
+                    );
                 }
             }
         }

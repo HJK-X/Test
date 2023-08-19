@@ -53,6 +53,18 @@ impl PasswordEntry {
         self.username = new_username;
     }
 
+    pub fn update_fields(&mut self, new_username: Option<String>, new_password: Option<String>, master_password: &str) {
+        if let Some(username) = new_username {
+            self.username = username;
+        }
+
+        if let Some(password) = new_password {
+            if let Err(err) = self.encrypt_password(&password, master_password) {
+                println!("Failed to encrypt new password: {}", err);
+            }
+        }
+    }
+
     pub fn encrypt_password(&mut self, plaintext_password: &str, master_password: &str) -> Result<(), String> {
         let key: [u8; 32] = derive_key_from_master_password(master_password, &self.nonce).map_err(|_| "Failed to derive key from master password")?;
         let cipher = Aes256Gcm::new(&key.into());

@@ -143,27 +143,13 @@ fn handle_update_command(args: &cli::DefaultArgs, master_password: &str) {
     if password_entries.is_empty() {
         println!("No password entries found.");
     } else {
-        let mut updated_entries: Vec<PasswordEntry> = Vec::new();
         for entry in password_entries.iter_mut() {
             if let Some(website) = &args.website {
                 if entry.website() == website {
-                    if let Some(new_username) = &args.username {
-                        entry.update_username(new_username.clone());
-                    }
-                    if let Some(new_password) = &args.password {
-                        if let Err(err) = entry.encrypt_password(new_password, master_password) {
-                            println!("Failed to encrypt new password: {}", err);
-                        }
-                    }
-                    updated_entries.push(entry);
+                    entry.update_fields(args.username.clone(), args.password.clone(), master_password);
                 }
-            } else {
-                updated_entries.push(entry);
             }
         }
-
-        password_entries.clear();
-        password_entries.extend(updated_entries);
 
         save_password_entries(&password_entries);
 

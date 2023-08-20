@@ -47,12 +47,21 @@ fn main() -> Result<(), String> {
 
                 match trimmed {
                     "add" => {
-                        let args: DefaultArgs = handle_default_args(&rl)?;
-                        handle_add_command(args, &master_password, password_entries);
+                        let website = prompt_website(&rl)?;
+                        let username = prompt_username(&rl)?;
+                        let password = prompt_password(&rl)?;
+                        handle_add_command(
+                            website,
+                            username,
+                            password,
+                            &master_password,
+                            password_entries,
+                        );
                     }
                     "list" => {
-                        let args: DefaultArgs = handle_default_args(&rl)?;
-                        handle_list_command(args, &master_password, password_entries);
+                        let website = prompt_website(&rl)?;
+                        let username = prompt_username(&rl)?;
+                        handle_list_command(website, username, &master_password, password_entries);
                     }
                     "quit" => {
                         println!("bye");
@@ -107,21 +116,37 @@ fn load_master_password_hash() -> Result<[u8; 32], String> {
     Ok(hash_array)
 }
 
-fn handle_default_args(rl: &Editor<(), FileHistory>) -> Result<(String, String, String), String> {
+fn prompt_website(rl: &Editor<(), FileHistory>) -> Result<String, String> {
     let website: String = rl
         .readline("Website: ")
         .map(|line| line.trim().to_string())
         .map_err(|_| "Readline failed")?;
+
+    Ok(website)
+}
+fn prompt_username(rl: &Editor<(), FileHistory>) -> Result<String, String> {
     let username: String = rl
         .readline("Website: ")
         .map(|line| line.trim().to_string())
         .map_err(|_| "Readline failed")?;
+
+    Ok(username)
+}
+fn prompt_password(rl: &Editor<(), FileHistory>) -> Result<String, String> {
     let password: String = rl
         .readline("Website: ")
         .map(|line| line.trim().to_string())
         .map_err(|_| "Readline failed")?;
 
-    Ok((website, username, password))
+    Ok(password)
+}
+fn prompt_time(rl: &Editor<(), FileHistory>) -> Result<String, String> {
+    let time: String = rl
+        .readline("Time: ")
+        .map(|line| line.trim().to_string())
+        .map_err(|_| "Readline failed")?;
+
+    Ok(time)
 }
 
 fn handle_add_command(
@@ -133,13 +158,10 @@ fn handle_add_command(
 ) {
     println!("Adding password for {:?}", args.website);
 
-    let mut new_entry: password_manager::PasswordEntry = password_manager::PasswordEntry::new(
-        args.website.clone(),
-        args.username.clone(),
-        Vec::new(),
-    );
+    let mut new_entry: password_manager::PasswordEntry =
+        password_manager::PasswordEntry::new(website, username, Vec::new());
 
-    let encrypted_password = new_entry.encrypt_password(&args.password, &master_password);
+    let encrypted_password = new_entry.encrypt_password(&password, &master_password);
 
     match encrypted_password {
         Ok(_) => {

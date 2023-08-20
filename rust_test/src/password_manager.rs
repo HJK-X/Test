@@ -1,3 +1,5 @@
+use std::time::SystemTime;
+
 use aead::{Aead, AeadCore, KeyInit};
 use aes_gcm::{Aes256Gcm, Nonce, Key};
 use generic_array::GenericArray;
@@ -28,6 +30,7 @@ pub struct PasswordEntry {
     username: String,
     encrypted_password: Vec<u8>,
     nonce: [u8; NONCE_SIZE],
+    timestamp: SystemTime,
 }
 
 
@@ -38,6 +41,7 @@ impl PasswordEntry {
             username,
             encrypted_password,
             nonce: [0u8; NONCE_SIZE],
+            timestamp: SystemTime::now(),
         }
     }
 

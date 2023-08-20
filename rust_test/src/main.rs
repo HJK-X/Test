@@ -1,6 +1,5 @@
-
 use rustyline::error::ReadlineError;
-use rustyline::{DefaultEditor, Editor, history::FileHistory};
+use rustyline::{history::FileHistory, DefaultEditor, Editor};
 use serde_json;
 use std::fs;
 use std::io::{Read, Write};
@@ -28,7 +27,9 @@ fn main() -> Result<(), String> {
 
     let master_password = rpassword::prompt_password("Your password: ").unwrap();
 
-    if password_manager::derive_key_from_master_password(&master_password, MASTER_SALT)? == master_password_hash {
+    if password_manager::derive_key_from_master_password(&master_password, MASTER_SALT)?
+        == master_password_hash
+    {
         println!("Logged in");
     } else {
         panic!("Master password was incorrect")
@@ -48,23 +49,11 @@ fn main() -> Result<(), String> {
                     "add" => {
                         let args: DefaultArgs = handle_default_args(&rl)?;
                         handle_add_command(args, &master_password, password_entries);
-                    },
-                    "get" => {
-                        let args: DefaultArgs = handle_default_args(&rl)?;
-                        handle_get_command(args, &master_password);
-                    },
-                    "update" => {
-                        let args: DefaultArgs = handle_default_args(&rl)?;
-                        handle_get_command(args, &master_password);
-                    },
-                    "delete" => {
-                        let args: DefaultArgs = handle_default_args(&rl)?;
-                        handle_get_command(args, &master_password);
-                    },
+                    }
                     "list" => {
                         let args: DefaultArgs = handle_default_args(&rl)?;
-                        handle_get_command(args, &master_password);
-                    },
+                        handle_list_command(args, &master_password, password_entries);
+                    }
                     "quit" => {
                         println!("bye");
                         save_password_entries(&password_entries);
@@ -85,35 +74,6 @@ fn main() -> Result<(), String> {
     }
 
     Ok(())
-
-    // let mut rl = ClapEditor::<cli::Commands>::new();
-
-    // let master_password = rpassword::prompt_password("Your password: ").unwrap();
-
-    // loop {
-    //     let Some(command) = rl.read_command() else {
-    //         continue;
-    //     };
-
-    //     match command {
-    //         cli::Commands::Add(args) => {
-    //             handle_add_command(&args, &master_password);
-    //         }
-    //         cli::Commands::Get(args) => {
-    //             handle_get_command(&args, &master_password);
-    //         }
-    //         cli::Commands::List(args) => {
-    //             handle_list_command(&args, &master_password);
-    //         }
-    //         cli::Commands::Update(args) => {
-    //             handle_update_command(&args, &master_password);
-    //         }
-    //         cli::Commands::Delete(args) => {
-    //             handle_delete_command(&args, &master_password);
-    //         }
-    //         cli::Commands::Generate { length } => todo!(),
-    //     }
-    // }
 }
 
 fn master_hash_file_exists() -> bool {
@@ -147,7 +107,7 @@ fn load_master_password_hash() -> Result<[u8; 32], String> {
     Ok(hash_array)
 }
 
-fn handle_default_args(rl: &Editor<(), FileHistory>) -> Result<DefaultArgs, String> {
+fn handle_default_args(rl: &Editor<(), FileHistory>) -> Result<(String, String, String), String> {
     let website: String = rl
         .readline("Website: ")
         .map(|line| line.trim().to_string())
@@ -161,14 +121,16 @@ fn handle_default_args(rl: &Editor<(), FileHistory>) -> Result<DefaultArgs, Stri
         .map(|line| line.trim().to_string())
         .map_err(|_| "Readline failed")?;
 
-    Ok(DefaultArgs {
-        website,
-        username,
-        password,
-    })
+    Ok((website, username, password))
 }
 
-fn handle_add_command(args: DefaultArgs, master_password: &str, password_entries: Vec<password_manager::PasswordEntry>) {
+fn handle_add_command(
+    website: String,
+    username: String,
+    password: String,
+    master_password: &str,
+    password_entries: Vec<password_manager::PasswordEntry>,
+) {
     println!("Adding password for {:?}", args.website);
 
     let mut new_entry: password_manager::PasswordEntry = password_manager::PasswordEntry::new(
@@ -190,34 +152,12 @@ fn handle_add_command(args: DefaultArgs, master_password: &str, password_entries
     }
 }
 
-fn handle_get_command(args: DefaultArgs, master_password: &str,password_entries: Vec<password_manager::PasswordEntry>) {
-    if let Some(website) = &args.website {
-        if let Some(entry) = password_entries
-            .iter()
-            .find(|entry| entry.website() == website)
-        {
-            let decrypted_password = entry.decrypt_password(&master_password);
-
-            match decrypted_password {
-                Ok(password) => {
-                    println!("Password for {:?}: {}", website, password);
-                }
-                Err(err) => {
-                    println!("Failed to decrypt password: {}", err);
-                }
-            }
-        } else {
-            println!("No password entry found for {:?}", website);
-        }
-    } else {
-        println!("Website is required to retrieve a password.");
-    }
-
-    println!("The password for {:?} is {:?}", args.website, args.password);
-}
-
-fn handle_list_command(args: DefaultArgs, master_password: &str,password_entries: Vec<password_manager::PasswordEntry>) {
-    let mut password_entries: Vec<password_manager::PasswordEntry> = load_password_entries();
+fn handle_list_command(
+    website: String,
+    username: String,
+    master_password: &str,
+    password_entries: Vec<password_manager::PasswordEntry>,
+) {
     if password_entries.is_empty() {
         println!("No password entries found.");
     } else {
@@ -251,28 +191,6 @@ fn handle_list_command(args: DefaultArgs, master_password: &str,password_entries
     }
 }
 
-fn handle_update_command(args: DefaultArgs, master_password: &str,password_entries: Vec<password_manager::PasswordEntry>) {
-    if password_entries.is_empty() {
-        println!("No password entries found.");
-    } else {
-        for entry in password_entries.iter_mut() {
-            if let Some(website) = &args.website {
-                if entry.website() == website {
-                    entry.update_fields(
-                        args.username.clone(),
-                        args.password.clone(),
-                        master_password,
-                    );
-                }
-            }
-        }
-
-        save_password_entries(&password_entries);
-
-        println!("Password entry updated successfully.");
-    }
-}
-
 fn load_password_entries() -> Vec<password_manager::PasswordEntry> {
     let mut file = fs::OpenOptions::new()
         .read(true)
@@ -301,13 +219,4 @@ fn save_password_entries(entries: &[password_manager::PasswordEntry]) {
 
     file.write_all(json_string.as_bytes())
         .expect("Failed to write password entries to file");
-}
-
-struct DefaultArgs {
-    /// Website URL/Name
-    website: String,
-    /// Username/Email
-    username: String,
-    /// Password/Secure Note
-    password: String,
 }

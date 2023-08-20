@@ -1,16 +1,16 @@
-use std::time::SystemTime;
-
 use aead::{Aead, AeadCore, KeyInit};
 use aes_gcm::{Aes256Gcm, Key, Nonce};
 use argon2::{
     password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
 };
+use chrono::{DateTime, NaiveDateTime, Utc};
 use generic_array::GenericArray;
 use rand_core::OsRng;
 use serde::{Deserialize, Serialize};
 use sha3::Sha3_512;
 use std::cmp::Ordering;
+use std::time::SystemTime;
 
 const NONCE_SIZE: usize = 12;
 const KEY_SIZE: usize = 32;
@@ -53,6 +53,10 @@ impl PasswordEntry {
 
     pub fn username(&self) -> &str {
         &self.username
+    }
+
+    pub fn timestamp(&self) -> SystemTime {
+        self.timestamp
     }
 
     pub fn encrypt_password(
@@ -113,4 +117,32 @@ impl PartialOrd for PasswordEntry {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
+}
+
+pub fn parse_user_time(input: &str) -> Result<SystemTime, String> {
+    let formats = &[
+        // Standard formats with different levels of precision
+        "%Y-%m-%d %H:%M:%S", // YYYY-MM-DD HH:MM:SS
+        "%Y-%m-%d %H:%M",    // YYYY-MM-DD HH:MM
+        "%Y-%m-%d",          // YYYY-MM-DD
+        // Formats with alternative separators
+        "%Y/%m/%d %H:%M:%S", // YYYY/MM/DD HH:MM:SS
+        "%Y.%m.%d %H:%M:%S", // YYYY.MM.DD HH:MM:SS
+        // Formats with abbreviated month names
+        "%d %b %Y %H:%M:%S", // DD Mon YYYY HH:MM:SS
+        "%d %b %Y %H:%M",    // DD Mon YYYY HH:MM
+        "%d %b %Y",          // DD Mon YYYY
+        // Formats with only time or date
+        "%H:%M:%S", // HH:MM:SS (Time only)
+        "%H:%M",    // HH:MM (Time only)
+    ];
+
+    for format in formats {
+        if let Ok(naive_datetime) = NaiveDateTime::parse_from_str(input, format) {
+            let datetime_utc = DateTime::<Utc>::from_utc(naive_datetime, Utc);
+            return Ok(datetime_utc.into());
+        }
+    }
+
+    Err("Could not parse time".into())
 }

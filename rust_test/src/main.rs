@@ -4,6 +4,7 @@ use serde_json;
 use std::fs;
 use std::io::{Read, Write};
 use std::path::Path;
+use std::time::{Duration, SystemTime};
 
 mod password_manager;
 
@@ -61,13 +62,26 @@ fn main() -> Result<(), String> {
                     "list" => {
                         let website = prompt_website(&rl)?;
                         let username = prompt_username(&rl)?;
-                        handle_list_command(website, username, "".to_string(), &master_password, password_entries);
+                        handle_list_command(
+                            website,
+                            username,
+                            SystemTime::now() + Duration::from_secs(100),
+                            &master_password,
+                            password_entries,
+                        );
                     }
-                    "history" => {
+                    "before" => {
                         let website = prompt_website(&rl)?;
                         let username = prompt_username(&rl)?;
-                        let time = prompt_time(&rl)?;
-                        handle_list_command(website, username, time, &master_password, password_entries);
+                        let time_str = prompt_time(&rl)?;
+                        let time = password_manager::parse_user_time(&time_str)?;
+                        handle_list_command(
+                            website,
+                            username,
+                            time,
+                            &master_password,
+                            password_entries,
+                        );
                     }
                     "quit" => {
                         println!("bye");
@@ -160,7 +174,7 @@ fn handle_add_command(
     username: String,
     password: String,
     master_password: &str,
-    password_entries: Vec<password_manager::PasswordEntry>,
+    mut password_entries: Vec<password_manager::PasswordEntry>,
 ) {
     println!("Adding password for {:?}", website);
 
@@ -183,9 +197,9 @@ fn handle_add_command(
 fn handle_list_command(
     website: String,
     username: String,
-    time: String,
+    time: SystemTime,
     master_password: &str,
-    password_entries: Vec<password_manager::PasswordEntry>,
+    mut password_entries: Vec<password_manager::PasswordEntry>,
 ) {
     if password_entries.is_empty() {
         println!("No password entries found.");
@@ -194,15 +208,14 @@ fn handle_list_command(
 
         println!("Listing passwords:");
         for entry in password_entries.iter() {
-            if let Some(website) = &args.website {
-                if entry.website() != website {
-                    continue;
-                }
+            if website != "" && website != entry.website() {
+                continue;
             }
-            if let Some(username) = &args.username {
-                if entry.username() != username {
-                    continue;
-                }
+            if username != "" && username != entry.username() {
+                continue;
+            }
+            if time < entry.timestamp() {
+                continue;
             }
             println!("Website: {}", entry.website());
             println!("\tUsername: {}", entry.username());

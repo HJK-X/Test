@@ -61,7 +61,13 @@ fn main() -> Result<(), String> {
                     "list" => {
                         let website = prompt_website(&rl)?;
                         let username = prompt_username(&rl)?;
-                        handle_list_command(website, username, &master_password, password_entries);
+                        handle_list_command(website, username, "".to_string(), &master_password, password_entries);
+                    }
+                    "history" => {
+                        let website = prompt_website(&rl)?;
+                        let username = prompt_username(&rl)?;
+                        let time = prompt_time(&rl)?;
+                        handle_list_command(website, username, time, &master_password, password_entries);
                     }
                     "quit" => {
                         println!("bye");
@@ -156,7 +162,7 @@ fn handle_add_command(
     master_password: &str,
     password_entries: Vec<password_manager::PasswordEntry>,
 ) {
-    println!("Adding password for {:?}", args.website);
+    println!("Adding password for {:?}", website);
 
     let mut new_entry: password_manager::PasswordEntry =
         password_manager::PasswordEntry::new(website, username, Vec::new());
@@ -177,13 +183,14 @@ fn handle_add_command(
 fn handle_list_command(
     website: String,
     username: String,
+    time: String,
     master_password: &str,
     password_entries: Vec<password_manager::PasswordEntry>,
 ) {
     if password_entries.is_empty() {
         println!("No password entries found.");
     } else {
-        password_entries.sort_by(|a, b| a.website().cmp(b.website()));
+        password_entries.sort();
 
         println!("Listing passwords:");
         for entry in password_entries.iter() {

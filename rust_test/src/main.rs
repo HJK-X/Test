@@ -55,7 +55,7 @@ fn main() -> Result<(), String> {
                             website,
                             username,
                             password,
-                            &master_password,
+                            &master_password, 
                             password_entries,
                         );
                     }

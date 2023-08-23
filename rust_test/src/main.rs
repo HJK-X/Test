@@ -47,14 +47,29 @@ fn main() -> Result<(), String> {
 
                 match trimmed {
                     "add" => {
-                        let website = prompt_website(rl)?;
-                        let username = prompt_username(rl)?;
-                        let password = prompt_password(rl)?;
+                        let website: String = rl
+                            .readline("Website: ")
+                            .map(|line| line.trim().to_string())
+                            .map_err(|_| "Readline failed")?;
+                        let username: String = rl
+                            .readline("Website: ")
+                            .map(|line| line.trim().to_string())
+                            .map_err(|_| "Readline failed")?;
+                        let password: String = rl
+                            .readline("Website: ")
+                            .map(|line| line.trim().to_string())
+                            .map_err(|_| "Readline failed")?;
                         handle_add_command(website, username, password, &master_password);
                     }
                     "list" => {
-                        let website = prompt_website(rl)?;
-                        let username = prompt_username(rl)?;
+                        let website: String = rl
+                            .readline("Website: ")
+                            .map(|line| line.trim().to_string())
+                            .map_err(|_| "Readline failed")?;
+                        let username: String = rl
+                            .readline("Website: ")
+                            .map(|line| line.trim().to_string())
+                            .map_err(|_| "Readline failed")?;
                         handle_list_command(
                             website,
                             username,
@@ -63,9 +78,18 @@ fn main() -> Result<(), String> {
                         );
                     }
                     "before" => {
-                        let website = prompt_website(rl)?;
-                        let username = prompt_username(rl)?;
-                        let time_str = prompt_time(rl)?;
+                        let website: String = rl
+                            .readline("Website: ")
+                            .map(|line| line.trim().to_string())
+                            .map_err(|_| "Readline failed")?;
+                        let username: String = rl
+                            .readline("Website: ")
+                            .map(|line| line.trim().to_string())
+                            .map_err(|_| "Readline failed")?;
+                        let time_str: String = rl
+                            .readline("Time: ")
+                            .map(|line| line.trim().to_string())
+                            .map_err(|_| "Readline failed")?;
                         let time = password_manager::parse_user_time(&time_str)?;
                         handle_list_command(website, username, time, &master_password);
                     }
@@ -119,39 +143,6 @@ fn load_master_password_hash() -> Result<[u8; 32], String> {
     hash_array.copy_from_slice(&hash);
 
     Ok(hash_array)
-}
-
-fn prompt_website(mut rl: Editor<(), FileHistory>) -> Result<String, String> {
-    let website: String = rl
-        .readline("Website: ")
-        .map(|line| line.trim().to_string())
-        .map_err(|_| "Readline failed")?;
-
-    Ok(website)
-}
-fn prompt_username(mut rl: Editor<(), FileHistory>) -> Result<String, String> {
-    let username: String = rl
-        .readline("Website: ")
-        .map(|line| line.trim().to_string())
-        .map_err(|_| "Readline failed")?;
-
-    Ok(username)
-}
-fn prompt_password(mut rl: Editor<(), FileHistory>) -> Result<String, String> {
-    let password: String = rl
-        .readline("Website: ")
-        .map(|line| line.trim().to_string())
-        .map_err(|_| "Readline failed")?;
-
-    Ok(password)
-}
-fn prompt_time(mut rl: Editor<(), FileHistory>) -> Result<String, String> {
-    let time: String = rl
-        .readline("Time: ")
-        .map(|line| line.trim().to_string())
-        .map_err(|_| "Readline failed")?;
-
-    Ok(time)
 }
 
 fn handle_add_command(website: String, username: String, password: String, master_password: &str) {

@@ -37,7 +37,6 @@ fn main() -> Result<(), String> {
     }
 
     let mut rl = DefaultEditor::new().map_err(|_| "Could not start rustyline")?;
-    let mut password_entries: Vec<password_manager::PasswordEntry> = load_password_entries();
     loop {
         let readline = rl.readline(">> ");
         match readline {
@@ -48,44 +47,30 @@ fn main() -> Result<(), String> {
 
                 match trimmed {
                     "add" => {
-                        let website = prompt_website(&rl)?;
-                        let username = prompt_username(&rl)?;
-                        let password = prompt_password(&rl)?;
-                        handle_add_command(
-                            website,
-                            username,
-                            password,
-                            &master_password, 
-                            password_entries,
-                        );
+                        let website = prompt_website(rl)?;
+                        let username = prompt_username(rl)?;
+                        let password = prompt_password(rl)?;
+                        handle_add_command(website, username, password, &master_password);
                     }
                     "list" => {
-                        let website = prompt_website(&rl)?;
-                        let username = prompt_username(&rl)?;
+                        let website = prompt_website(rl)?;
+                        let username = prompt_username(rl)?;
                         handle_list_command(
                             website,
                             username,
                             SystemTime::now() + Duration::from_secs(100),
                             &master_password,
-                            password_entries,
                         );
                     }
                     "before" => {
-                        let website = prompt_website(&rl)?;
-                        let username = prompt_username(&rl)?;
-                        let time_str = prompt_time(&rl)?;
+                        let website = prompt_website(rl)?;
+                        let username = prompt_username(rl)?;
+                        let time_str = prompt_time(rl)?;
                         let time = password_manager::parse_user_time(&time_str)?;
-                        handle_list_command(
-                            website,
-                            username,
-                            time,
-                            &master_password,
-                            password_entries,
-                        );
+                        handle_list_command(website, username, time, &master_password);
                     }
                     "quit" => {
                         println!("bye");
-                        save_password_entries(&password_entries);
                         break;
                     }
                     _ => println!("Unknown command"),
@@ -136,7 +121,7 @@ fn load_master_password_hash() -> Result<[u8; 32], String> {
     Ok(hash_array)
 }
 
-fn prompt_website(rl: &Editor<(), FileHistory>) -> Result<String, String> {
+fn prompt_website(mut rl: Editor<(), FileHistory>) -> Result<String, String> {
     let website: String = rl
         .readline("Website: ")
         .map(|line| line.trim().to_string())
@@ -144,7 +129,7 @@ fn prompt_website(rl: &Editor<(), FileHistory>) -> Result<String, String> {
 
     Ok(website)
 }
-fn prompt_username(rl: &Editor<(), FileHistory>) -> Result<String, String> {
+fn prompt_username(mut rl: Editor<(), FileHistory>) -> Result<String, String> {
     let username: String = rl
         .readline("Website: ")
         .map(|line| line.trim().to_string())
@@ -152,7 +137,7 @@ fn prompt_username(rl: &Editor<(), FileHistory>) -> Result<String, String> {
 
     Ok(username)
 }
-fn prompt_password(rl: &Editor<(), FileHistory>) -> Result<String, String> {
+fn prompt_password(mut rl: Editor<(), FileHistory>) -> Result<String, String> {
     let password: String = rl
         .readline("Website: ")
         .map(|line| line.trim().to_string())
@@ -160,7 +145,7 @@ fn prompt_password(rl: &Editor<(), FileHistory>) -> Result<String, String> {
 
     Ok(password)
 }
-fn prompt_time(rl: &Editor<(), FileHistory>) -> Result<String, String> {
+fn prompt_time(mut rl: Editor<(), FileHistory>) -> Result<String, String> {
     let time: String = rl
         .readline("Time: ")
         .map(|line| line.trim().to_string())
@@ -169,14 +154,9 @@ fn prompt_time(rl: &Editor<(), FileHistory>) -> Result<String, String> {
     Ok(time)
 }
 
-fn handle_add_command(
-    website: String,
-    username: String,
-    password: String,
-    master_password: &str,
-    mut password_entries: Vec<password_manager::PasswordEntry>,
-) {
+fn handle_add_command(website: String, username: String, password: String, master_password: &str) {
     println!("Adding password for {:?}", website);
+    let mut password_entries: Vec<password_manager::PasswordEntry> = load_password_entries();
 
     let mut new_entry: password_manager::PasswordEntry =
         password_manager::PasswordEntry::new(website, username, Vec::new());
@@ -194,13 +174,8 @@ fn handle_add_command(
     }
 }
 
-fn handle_list_command(
-    website: String,
-    username: String,
-    time: SystemTime,
-    master_password: &str,
-    mut password_entries: Vec<password_manager::PasswordEntry>,
-) {
+fn handle_list_command(website: String, username: String, time: SystemTime, master_password: &str) {
+    let mut password_entries: Vec<password_manager::PasswordEntry> = load_password_entries();
     if password_entries.is_empty() {
         println!("No password entries found.");
     } else {

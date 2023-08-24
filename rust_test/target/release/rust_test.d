@@ -1,0 +1,1 @@
+C:\Users\justi\Desktop\Projects\Test\rust_test\target\release\rust_test.exe: C:\Users\justi\Desktop\Projects\Test\rust_test\src\main.rs C:\Users\justi\Desktop\Projects\Test\rust_test\src\password_manager.rs

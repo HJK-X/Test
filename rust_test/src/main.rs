@@ -12,7 +12,7 @@ const MASTER_SALT: &[u8; 12] = b"uniquemaster";
 const MASTER_HASH_FILE: &str = "master_password_hash.bin";
 
 fn main() -> Result<(), String> {
-    if master_hash_file_exists() {
+    if !master_hash_file_exists() {
         let master_password: String =
             rpassword::prompt_password("Input your master password: ").unwrap();
         let master_password_confirmation =
@@ -41,22 +41,25 @@ fn main() -> Result<(), String> {
         let readline = rl.readline(">> ");
         match readline {
             Ok(line) => {
-                println!("Line: {}", line);
-                println!("{}", master_password);
                 let trimmed = line.trim();
 
                 match trimmed {
+                    "help" => {
+                        println!("add - add a new password");
+                        println!("list - list all passwords that fit criteria");
+                        println!("before - same as list but only show passwords created before given time");
+                    }
                     "add" => {
                         let website: String = rl
                             .readline("Website: ")
                             .map(|line| line.trim().to_string())
                             .map_err(|_| "Readline failed")?;
                         let username: String = rl
-                            .readline("Website: ")
+                            .readline("Username: ")
                             .map(|line| line.trim().to_string())
                             .map_err(|_| "Readline failed")?;
                         let password: String = rl
-                            .readline("Website: ")
+                            .readline("Password: ")
                             .map(|line| line.trim().to_string())
                             .map_err(|_| "Readline failed")?;
                         handle_add_command(website, username, password, &master_password);
@@ -67,7 +70,7 @@ fn main() -> Result<(), String> {
                             .map(|line| line.trim().to_string())
                             .map_err(|_| "Readline failed")?;
                         let username: String = rl
-                            .readline("Website: ")
+                            .readline("Username: ")
                             .map(|line| line.trim().to_string())
                             .map_err(|_| "Readline failed")?;
                         handle_list_command(
@@ -83,7 +86,7 @@ fn main() -> Result<(), String> {
                             .map(|line| line.trim().to_string())
                             .map_err(|_| "Readline failed")?;
                         let username: String = rl
-                            .readline("Website: ")
+                            .readline("Username: ")
                             .map(|line| line.trim().to_string())
                             .map_err(|_| "Readline failed")?;
                         let time_str: String = rl
@@ -130,7 +133,7 @@ fn save_master_password_hash(master_password: &str) -> Result<(), String> {
 }
 
 fn load_master_password_hash() -> Result<[u8; 32], String> {
-    if master_hash_file_exists() {
+    if !master_hash_file_exists() {
         return Err("Hash file does not exist".into());
     }
     let hash = fs::read(MASTER_HASH_FILE).map_err(|_| "Failed to load hash from file")?;

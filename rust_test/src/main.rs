@@ -35,7 +35,7 @@ fn main() -> Result<(), String> {
     } else {
         panic!("Master password was incorrect")
     }
-
+ 
     let mut rl = DefaultEditor::new().map_err(|_| "Could not start rustyline")?;
     loop {
         let readline = rl.readline(">> ");

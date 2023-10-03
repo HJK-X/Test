@@ -12,6 +12,7 @@ const MASTER_SALT: &[u8; 12] = b"uniquemaster";
 const MASTER_HASH_FILE: &str = "master_password_hash.bin";
       
 // TODO: make sure that nonce and stuff are not repeatedly used. so most likely it has to be even more random (2^128) also look into everything else
+// 
 fn main() -> Result<(), String> {
     if !master_hash_file_exists() {
         let master_password: String =
